@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Page Web App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            font-weight: 500;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="date"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fafafa;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="date"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .profile-info {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .profile-info strong {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Login Page -->
+    <div id="loginPage" class="section active">
+        <h1>Login</h1>
+        <form id="loginForm">
+            <label for="username">Name:</label>
+            <input type="text" id="username" name="username" required><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br>
+
+            <button type="submit">Login</button>
+            <p class="error" id="loginError"></p>
+        </form>
+    </div>
+
+    <!-- Form Page -->
+    <div id="formPage" class="section">
+        <h1>Your Details</h1>
+        <form id="detailsForm">
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" name="fullName" required><br>
+
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" required><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br>
+
+            <label for="birthDate">Birth Date:</label>
+            <input type="date" id="birthDate" name="birthDate" required><br>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profilePage" class="section">
+        <h1>Profile</h1>
+        <div class="profile-info">
+            <p><strong>Name:</strong> <span id="displayName"></span></p>
+            <p><strong>Phone Number:</strong> <span id="displayPhone"></span></p>
+            <p><strong>Email:</strong> <span id="displayEmail"></span></p>
+            <p><strong>Birth Date:</strong> <span id="displayBirthDate"></span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show the login page
+    function showLoginPage() {
+        document.getElementById('loginPage').classList.add('active');
+        document.getElementById('formPage').classList.remove('active');
+        document.getElementById('profilePage').classList.remove('active');
+    }
+
+    // Show the form page
+    function showFormPage() {
+        document.getElementById('loginPage').classList.remove('active');
+        document.getElementById('formPage').classList.add('active');
+        document.getElementById('profilePage').classList.remove('active');
+    }
+
+    // Show the profile page
+    function showProfilePage() {
+        document.getElementById('loginPage').classList.remove('active');
+        document.getElementById('formPage').classList.remove('active');
+        document.getElementById('profilePage').classList.add('active');
+
+        // Display user details
+        document.getElementById('displayName').textContent = localStorage.getItem('fullName');
+        document.getElementById('displayPhone').textContent = localStorage.getItem('phone');
+        document.getElementById('displayEmail').textContent = localStorage.getItem('email');
+        document.getElementById('displayBirthDate').textContent = localStorage.getItem('birthDate');
+    }
+
+    // Handle login form submission
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // Regular expression for password validation: at least one special character, one number, and one uppercase letter
+        const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        // Check if password matches the pattern
+        if (!passwordPattern.test(password)) {
+            document.getElementById('loginError').textContent = 'Password must contain at least one uppercase letter, one number, and one special character.';
+            return; // Prevent form submission if validation fails
+        }
+
+        // If the password is valid, store the username in localStorage and show the form page
+        document.getElementById('loginError').textContent = ''; // Clear error message
+        localStorage.setItem('username', username);
+        showFormPage(); // Show the form page after login
+    });
+
+    // Handle details form submission
+    document.getElementById('detailsForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        // Save details to localStorage
+        localStorage.setItem('fullName', document.getElementById('fullName').value);
+        localStorage.setItem('phone', document.getElementById('phone').value);
+        localStorage.setItem('email', document.getElementById('email').value);
+        localStorage.setItem('birthDate', document.getElementById('birthDate').value);
+        showProfilePage(); // Show the profile page after form submission
+    });
+
+    // Initialize the page with login
+    showLoginPage();
+</script>
+
+</body>
+</html>
